@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Tacos</h2>
+    {% if tacos.count() %}
+        <table class="u-full-width">
+          <thead>
+            <tr>
+              <th>Protein</th>
+              <th>Cheese?</th>
+              <th>Shell</th>
+              <th>Extras</th>
+            </tr>
+          </thead>
+          <tbody>
+        {% for taco in tacos %}
+            <!-- taco attributes here -->
+        {% endfor %}
+          </tbody>
+        </table>
+    {% else %}
+        <!-- message for missing tacos -->
+    {% endif %}
+{% endblock %}

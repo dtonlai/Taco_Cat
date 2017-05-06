@@ -47,8 +47,27 @@ def register():
 
 @app.route('/login', methods=('GET', 'POST'))
 def login():
+    form = forms.LoginForm()
+    if form.validate_on_submit:
+        try:
+            user = models.User.get(models.User.email == form.email.data)
+        except models.DoesNotExist:
+            flash("Sorry, that email and password combination doesn't match!", "error")
+        else:
+            if check_password_hash(user.password == form.password.data):
+                login_user(user)
+                flash("You've successfully been logged in!", "success")
+                redirect(url_for('index'))
+            else:
+                flash("Sorry, that email and password combination doesn't match!", "error")
+    return render_template('login.html', form=form)
 
-
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("You've successfully been logged out, see you next time!", "success")
+    redirect(url_for('login'))
 
 if __name__ == '__main__':
     models.initialize()
@@ -56,8 +75,7 @@ if __name__ == '__main__':
         models.User.create_user(
             username='dtonlai',
             email='dtonlai@ualberta.ca',
-            password='keyword',
-            admin=True
+            password='keyword'
         )
     except ValueError:
         pass

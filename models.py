@@ -11,9 +11,6 @@ class User(UserMixin, Model):
     password = CharField(max_length=100)
     joined_at = DateTimeField(default=datetime.datetime.now)
 
-    def create_user(self):
-
-
     class Meta:
         database = DATABASE
         order_by = ('-joined_at',)

@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Regexp, Email, Length, ValidationEr
 from models import User
 
 def name_exists(form, field):
-    if User.select().where(User.user == field.data).exists():
+    if User.select().where(User.username == field.data).exists():
         raise ValidationError("Sorry, that name is already taken!")
 
 def email_exists(form, field):
@@ -13,7 +13,7 @@ def email_exists(form, field):
         raise ValidationError("Sorry, that e-mail is already in use!")
 
 class RegisterForm(Form):
-    user = StringField(
+    username = StringField(
         "Username",
         validators=[
             DataRequired(),
@@ -37,7 +37,7 @@ class RegisterForm(Form):
         "Password",
         validators=[
             DataRequired(),
-            Length(min=6),
+            Length(min=2),
             EqualTo("password2", message="The passwords don't match!")
         ]
     )

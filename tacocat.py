@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, g
+from flask import Flask, render_template, redirect, url_for, g, flash
 from flask_bcrypt import check_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required
 
@@ -14,7 +14,14 @@ app.secret_key = "asdjfoadsgugkgnigi090j3onfo3inojfojklsnl"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view('login')
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(userid):
+    try:
+        return models.User.get(models.User.id == userid)
+    except models.DoesNotExist:
+        return None
 
 @app.before_request
 def before_request():
@@ -35,7 +42,7 @@ def index():
 @app.route('/register', methods=('GET', 'POST'))
 def register():
     form = forms.RegisterForm()
-    if form.validate_on_submit:
+    if form.validate_on_submit():
         flash("You've successfully registered, welcome to the ultimate taco website!", "success")
         models.User.create_user(
             username = form.username.data,
@@ -43,7 +50,7 @@ def register():
             password = form.password.data
         )
         return redirect(url_for('index'))
-    return render_template('index.html', form=form)
+    return render_template('register.html', form=form)
 
 @app.route('/login', methods=('GET', 'POST'))
 def login():
@@ -54,10 +61,10 @@ def login():
         except models.DoesNotExist:
             flash("Sorry, that email and password combination doesn't match!", "error")
         else:
-            if check_password_hash(user.password == form.password.data):
+            if check_password_hash(user.password, form.password.data):
                 login_user(user)
                 flash("You've successfully been logged in!", "success")
-                redirect(url_for('index'))
+                return redirect(url_for('index'))
             else:
                 flash("Sorry, that email and password combination doesn't match!", "error")
     return render_template('login.html', form=form)

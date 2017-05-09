@@ -15,6 +15,14 @@ class User(UserMixin, Model):
         database = DATABASE
         order_by = ('-joined_at',)
 
+    def get_posts(self):
+        return Post.select().where(Post.user == self)
+
+    def get_stream(self):
+        return Post.select().where(
+            (Post.user << self.following()) |
+            (Post.user == self))
+
     @classmethod
     def create_user(cls, username, email, password):
         try:
@@ -27,7 +35,22 @@ class User(UserMixin, Model):
         except IntegrityError:
             raise ValueError("User already exists")
 
+class Taco(Model):
+    protein = CharField()
+    shell = CharField()
+    extras = CharField()
+    cheese = CharField()
+    created_at = DateTimeField(default=datetime.datetime.now)
+    user = ForeignKeyField(
+        rel_model=User,
+        related_name='tacos'
+    )
+
+    class Meta:
+        database = DATABASE
+        order_by = ('-created_at',)
+
 def initialize():
     DATABASE.connect()
-    DATABASE.create_tables([User], safe=True)
+    DATABASE.create_tables([User, Taco], safe=True)
     DATABASE.close()

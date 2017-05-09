@@ -1,6 +1,6 @@
-from flask import Flask, render_template, redirect, url_for, g, flash
+from flask import Flask, render_template, redirect, url_for, g, flash, abort
 from flask_bcrypt import check_password_hash
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 import forms
 import models
@@ -28,6 +28,7 @@ def before_request():
     """Connect to database before requests"""
     g.db = models.DATABASE
     g.db.connect()
+    g.user = current_user
 
 @app.after_request
 def after_request(response):
@@ -37,7 +38,8 @@ def after_request(response):
 
 @app.route('/')
 def index():
-    return "Hi"
+    taco = models.Taco.select()
+    return render_template("index.html", taco=taco)
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
@@ -55,7 +57,7 @@ def register():
 @app.route('/login', methods=('GET', 'POST'))
 def login():
     form = forms.LoginForm()
-    if form.validate_on_submit:
+    if form.validate_on_submit():
         try:
             user = models.User.get(models.User.email == form.email.data)
         except models.DoesNotExist:
@@ -74,7 +76,45 @@ def login():
 def logout():
     logout_user()
     flash("You've successfully been logged out, see you next time!", "success")
-    redirect(url_for('login'))
+    return redirect(url_for('login'))
+
+@app.route('/taco', methods=('GET', 'POST'))
+def taco():
+    form = forms.TacoForm()
+    if form.validate_on_submit():
+        models.Taco.create(
+            protein = form.protein.data.strip(),
+            shell = form.shell.data.strip(),
+            extras = form.extras.data.strip(),
+            cheese = form.cheese.data,
+            user = g.user._get_current_object()
+        )
+        flash("Taco created, thanks!", "success")
+        return redirect(url_for("index"))
+    return render_template("taco.html", form=form)
+
+@app.route('/stream')
+@app.route('/stream/<username>')
+def stream(username=None):
+    template = 'taco_stream.html'
+    if username and username != current_user.username:
+        try:
+            user = models.User.select().where(
+                models.User.username**username).get()
+        except models.DoesNotExist:
+            abort(404)
+        else:
+            stream = user.Taco.limit(100)
+    else:
+        stream = current_user.get_taco_stream().limit(100)
+        user = current_user
+    return render_template(template, stream=stream, user=user)
+
+@app.route('/post/<int:post_id>')
+@login_required
+def view_taco(taco_id):
+    taco = models.Taco.select().where(models.Taco.id == taco_id)
+    return render_template('stream.html', stream=taco)
 
 if __name__ == '__main__':
     models.initialize()
@@ -87,3 +127,4 @@ if __name__ == '__main__':
     except ValueError:
         pass
     app.run(debug=DEBUG, host=HOST, port=PORT)
+

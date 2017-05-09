@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/static/css/tacocat.css">
   </head>
   <body>
+    <img src="/static/images/tacocat.svg" height=100 width=100>
+    <br>
     {% with messages=get_flashed_messages() %}
     {% if messages %}
         <div class="messages">
@@ -23,7 +25,13 @@
       <div class="row">
         <div class="u-full-width">
           <nav class="menu">
-          <!-- menu goes here -->
+              {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}"><button type="button" id="button">Logout</button></a>
+              {% else %}
+                <a href="{{ url_for('login') }}"><button type="button" id="button">Login</button></a>
+                <a href="{{ url_for('register') }}"><button type="button" id="button">Register</button></a>
+              {% endif %}
+              <a href="{{ url_for('taco') }}"><button type="button" id="button">Create!</button></a>
           </nav>
           {% block content %}{% endblock %}
         </div>

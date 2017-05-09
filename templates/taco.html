@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% from 'macros.html' import render_field %}
+
+{% block content %}
+<form method="POST" action="" class="form">
+	{{ form.hidden_tag() }}
+	{{ render_field(form.protein) }}
+    {{ render_field(form.shell) }}
+    {{ render_field(form.extras) }}
+    {{ form.cheese.label }}
+    <tr>
+        <th>{% for choice in form.cheese %}
+                {{ choice.label }}
+                {{ choice }}
+            {% endfor %}
+        </th>
+    </tr>
+    <br>
+	<button type="submit" id="submit">Submit!</button>
+</form>
+{% endblock %}

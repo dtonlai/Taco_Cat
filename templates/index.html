@@ -2,23 +2,29 @@
 
 {% block content %}
 <h2>Tacos</h2>
-    {% if tacos.count() %}
+    {% if taco.count() %}
         <table class="u-full-width">
           <thead>
             <tr>
               <th>Protein</th>
-              <th>Cheese?</th>
               <th>Shell</th>
               <th>Extras</th>
+              <th>Cheese</th>
             </tr>
           </thead>
           <tbody>
-        {% for taco in tacos %}
-            <!-- taco attributes here -->
+              {% for taco in taco %}
+            <tr>
+              <!-- taco attributes here -->
+              <td>{{ taco.protein }}</td>
+              <td>{{ taco.shell }}</td>
+              <td>{{ taco.extras }}</td>
+              <td>{{ taco.cheese }}</td>
+            </tr>
         {% endfor %}
           </tbody>
         </table>
     {% else %}
-        <!-- message for missing tacos -->
+        <p>Sorry, no Tacos here yet :(</p>
     {% endif %}
 {% endblock %}

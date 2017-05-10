@@ -28,7 +28,7 @@ def load_user(userid):
 def before_request():
     """Connect to database before requests"""
     g.db = models.DATABASE
-    g.db.connect()
+    g.db.get_conn()
     g.user = current_user
 
 @app.after_request

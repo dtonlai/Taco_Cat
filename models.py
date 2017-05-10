@@ -51,6 +51,6 @@ class Taco(Model):
         order_by = ('-created_at',)
 
 def initialize():
-    DATABASE.connect()
+    DATABASE.get_conn()
     DATABASE.create_tables([User, Taco], safe=True)
     DATABASE.close()

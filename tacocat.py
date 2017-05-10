@@ -94,28 +94,9 @@ def taco():
         return redirect(url_for("index"))
     return render_template("taco.html", form=form)
 
-@app.route('/stream')
-@app.route('/stream/<username>')
-def stream(username=None):
-    template = 'taco_stream.html'
-    if username and username != current_user.username:
-        try:
-            user = models.User.select().where(
-                models.User.username**username).get()
-        except models.DoesNotExist:
-            abort(404)
-        else:
-            stream = user.Taco.limit(100)
-    else:
-        stream = current_user.get_taco_stream().limit(100)
-        user = current_user
-    return render_template(template, stream=stream, user=user)
-
-@app.route('/post/<int:post_id>')
-@login_required
-def view_taco(taco_id):
-    taco = models.Taco.select().where(models.Taco.id == taco_id)
-    return render_template('stream.html', stream=taco)
+@app.errorhandler(404)
+def not_found(error):
+    return render_template("404.html"), 404
 
 if __name__ == '__main__':
     models.initialize()

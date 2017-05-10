@@ -120,11 +120,13 @@ if __name__ == '__main__':
     models.initialize()
     try:
         models.User.create_user(
-            username='dtonlai',
-            email='dtonlai@ualberta.ca',
-            password='keyword'
+            username='test',
+            email='test@example.com',
+            password='password'
         )
     except ValueError:
         pass
-    app.run(debug=DEBUG, host=HOST, port=PORT)
+    app.debug = True
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
